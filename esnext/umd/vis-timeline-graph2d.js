@@ -5,7 +5,7 @@
  * Create a fully customizable, interactive timeline with items and ranges.
  *
  * @version 0.0.0-no-version
- * @date    2021-07-27T18:48:50.395Z
+ * @date    2021-12-15T22:35:10.939Z
  *
  * @copyright (c) 2011-2017 Almende B.V, http://almende.com
  * @copyright (c) 2017-2019 visjs contributors, https://github.com/visjs
@@ -8274,6 +8274,16 @@
         this.dom.content.className = 'vis-item-content';
         this.dom.frame.appendChild(this.dom.content);
 
+        // past decoration box
+        this.dom.pastDecoration = document.createElement('div');
+        this.dom.pastDecoration.className = 'vis-item-past-decoration';
+        this.dom.frame.appendChild(this.dom.pastDecoration);
+
+        // future decoration box
+        this.dom.futureDecoration = document.createElement('div');
+        this.dom.futureDecoration.className = 'vis-item-future-decoration';
+        this.dom.frame.appendChild(this.dom.futureDecoration);
+
         // attach this item as attribute
         this.dom.box['vis-item'] = this;
 
@@ -8456,7 +8466,7 @@
       let start = this.conversion.toScreen(this.data.start);
       let end = this.conversion.toScreen(this.data.end);
       const align = this.data.align === undefined ? this.options.align : this.data.align;
-      let contentStartPosition;
+      let contentStartPosition, contentEndPosition;
       let contentWidth;
 
       // limit the width of the range, as browsers cannot draw very wide divs
@@ -8541,6 +8551,11 @@
             }
           }
           else {
+            if (end > 0) {
+              contentEndPosition = Math.min(this.parent.itemSet.body.domProps.centerContainer.width - start, -start + end);
+            } else {
+              contentEndPosition = 0;
+            }
             if (start < 0) {
               contentStartPosition = -start;
             }
@@ -8551,8 +8566,17 @@
           if (this.options.rtl) {
             const translateX = contentStartPosition * -1;
             this.dom.content.style.transform = `translateX(${translateX}px)`;
+            if (this.dom.pastDecoration) {
+              this.dom.pastDecoration.style.transform = `translateX(${translateX}px)`;
+            }
           } else {
             this.dom.content.style.transform = `translateX(${contentStartPosition}px)`;
+            if (this.dom.pastDecoration) {
+              this.dom.pastDecoration.style.transform = `translateX(${contentStartPosition}px)`;
+            }
+            if (this.dom.futureDecoration) {
+              this.dom.futureDecoration.style.transform = `translateX(${contentEndPosition}px)`;
+            }
             // this.dom.content.style.width = `calc(100% - ${contentStartPosition}px)`;
           }
       }
